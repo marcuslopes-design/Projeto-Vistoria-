@@ -186,7 +186,7 @@ const App: React.FC = () => {
     }
   }, [offline]);
 
-  const handleUpdateClientInfo = useCallback(async (updateData: Partial<Pick<Client, 'floorPlanUrl' | 'coverImageUrl'>>) => {
+  const handleUpdateClientInfo = useCallback(async (updateData: Partial<Pick<Client, 'floorPlanUrl'>>) => {
     if (offline) {
       alert("Modo offline: Não é possível salvar alterações.");
       return;
@@ -218,9 +218,6 @@ const App: React.FC = () => {
     handleUpdateClientInfo({ floorPlanUrl: url });
   }, [handleUpdateClientInfo]);
   
-  const handleUpdateClientCoverImage = useCallback((url: string) => {
-    handleUpdateClientInfo({ coverImageUrl: url });
-  }, [handleUpdateClientInfo]);
 
   const handleScheduleInspection = useCallback(async (date: string, time: string): Promise<boolean> => {
     if (offline) {
@@ -332,7 +329,6 @@ const App: React.FC = () => {
                       appData={appData}
                       navigateTo={navigateTo}
                       onUpdateFloorPlan={handleUpdateFloorPlan}
-                      onUpdateClientCoverImage={handleUpdateClientCoverImage}
                       onScheduleInspection={handleScheduleInspection}
                       onAddEquipment={handleAddEquipment}
                       onSaveCategory={handleSaveCategory}

@@ -17,7 +17,6 @@ interface DashboardProps {
   appData: AppData;
   navigateTo: (page: string) => void;
   onUpdateFloorPlan: (url: string) => void;
-  onUpdateClientCoverImage: (url: string) => void;
   onScheduleInspection: (date: string, time: string) => Promise<boolean>;
   onAddEquipment: (equipment: NewEquipment) => Promise<boolean>;
   onSaveCategory: (categoryName: string) => Promise<{ name: string; icon: string; items: [] } | null>;
@@ -29,7 +28,6 @@ const Dashboard: React.FC<DashboardProps> = ({
   appData,
   navigateTo,
   onUpdateFloorPlan,
-  onUpdateClientCoverImage,
   onScheduleInspection,
   onAddEquipment,
   onSaveCategory,
@@ -161,7 +159,6 @@ const Dashboard: React.FC<DashboardProps> = ({
             client={appData.client} 
             onUpdateFloorPlan={onUpdateFloorPlan} 
             navigateTo={navigateTo}
-            onUpdateClientCoverImage={onUpdateClientCoverImage}
         />
         <StatsGrid stats={calculatedStats} />
         <NextInspection 
