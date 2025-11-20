@@ -1,0 +1,7 @@
+{
+  "name": "Projeto App de vistoria ",
+  "description": "A dashboard for viewing fire inspection information for a client, including compliance scores, equipment status, and upcoming inspections.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

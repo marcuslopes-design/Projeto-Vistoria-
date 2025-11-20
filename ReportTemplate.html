@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Vistoria de Sistema de Incêndio</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --primary-color: #1392ec;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --success-color: #28a745;
+            --text-dark: #111827;
+            --text-light: #6C757D;
+            --bg-light: #f9fafb;
+            --border-color: #e5e7eb;
+        }
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            background-color: #fff;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            width: 90%;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        #company-logo {
+            width: 120px;
+            height: auto;
+        }
+        .header-info {
+            text-align: right;
+        }
+        .header-info h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0 0 4px 0;
+        }
+        .header-info p {
+            font-size: 12px;
+            color: var(--text-light);
+            margin: 0;
+            line-height: 1.5;
+        }
+        /* Card styles */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            page-break-inside: avoid;
+        }
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        /* Summary Section */
+        #summary-card {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+        .summary-overall-status {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+        }
+        .summary-overall-status.approved { background-color: var(--success-color); }
+        .summary-overall-status.approved-issues { background-color: var(--warning-color); color: var(--text-dark); }
+        .summary-overall-status.failed { background-color: var(--danger-color); }
+
+        #overall-status-text {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+        }
+        #overall-status-desc {
+            font-size: 14px;
+            margin: 0;
+        }
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            flex: 1.5;
+            padding-left: 10px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-item .value {
+            font-size: 28px;
+            font-weight: 700;
+            display: block;
+        }
+        .stat-item .label {
+            font-size: 12px;
+            color: var(--text-light);
+            display: block;
+        }
+        .value.fail { color: var(--danger-color); }
+        .value.pending { color: var(--warning-color); }
+
+        /* Info Section */
+        .info-grid {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .info-grid > div {
+            width: 48%;
+        }
+        .info-grid p {
+            margin: 4px 0;
+        }
+        .info-grid strong {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        /* Equipment Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            background-color: var(--bg-light);
+            font-weight: 600;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .status-ok { background-color: #eaf7ed; color: #155724; }
+        .status-fail { background-color: #f8d7da; color: #721c24; }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .category-title {
+             font-size: 16px;
+             font-weight: 600;
+             margin: 24px 0 12px 0;
+        }
+        .category-title:first-of-type {
+            margin-top: 0;
+        }
+        /* Non-conformities */
+        #non-conformities.card {
+            border-color: #f8d7da;
+            background-color: #f8d7da30;
+        }
+        #non-conformities h2 { color: var(--danger-color); }
+        .failure-item {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed #f5c6cb;
+        }
+        .failure-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .failure-item p { margin: 5px 0; font-size: 14px; }
+        .failure-item img {
+            max-width: 250px;
+            height: auto;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        /* Footer */
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            text-align: center;
+            color: var(--text-light);
+        }
+        .signatures {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 60px;
+        }
+        .signature-block {
+            width: 45%;
+            text-align: center;
+        }
+        .signature-line {
+            border-bottom: 1px solid var(--text-dark);
+            height: 40px;
+            margin-bottom: 8px;
+        }
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .container { width: 100%; margin: 0; max-width: none; }
+            .card { box-shadow: none; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img id="company-logo" src="[LOGO_BASE64]" alt="Logo da Empresa">
+            <div class="header-info">
+                <h1>Relatório de Vistoria</h1>
+                <p>FireSafe Inc. | (11) 5555-1234<br>contato@firesafe.com</p>
+            </div>
+        </header>
+
+        <main>
+            <section id="summary" class="card">
+                <div id="summary-card">
+                    <div class="summary-overall-status approved">
+                        <div id="overall-status-text">Aprovado com Ressalvas</div>
+                        <div id="overall-status-desc">Ações de manutenção são necessárias.</div>
+                    </div>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="value" id="total-items">15</span>
+                            <span class="label">Itens Vistoriados</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="value fail" id="fail-items">1</span>
+                            <span class="label">Falhas Críticas</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="value pending" id="pending-items">2</span>
+                            <span class="label">Manutenções</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="card">
+                <div class="info-grid">
+                    <div>
+                        <h2>Informações do Cliente</h2>
+                        <p><strong>Nome:</strong> <span id="client-name">[Nome do Cliente Aqui]</span></p>
+                        <p><strong>Endereço:</strong> <span id="client-address">[Endereço da Vistoria Aqui]</span></p>
+                    </div>
+                    <div>
+                        <h2>Detalhes da Vistoria</h2>
+                        <p><strong>Técnico:</strong> <span id="tech-name">[Nome do Técnico Aqui]</span> (<span id="tech-id">[ID]</span>)</p>
+                        <p><strong>Data de Emissão:</strong> <span id="report-date">[Data de Emissão do Relatório]</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="equipment-list" class="card">
+                <!-- Content will be populated by JS -->
+            </section>
+
+            <section id="non-conformities" class="card" style="display: none;">
+                <!-- Content will be populated by JS -->
+            </section>
+        </main>
+
+        <footer>
+            <div class="signatures">
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <p id="signature-tech-name">[Nome do Técnico Responsável]</p>
+                    <p>Técnico Responsável</p>
+                </div>
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <p id="signature-client-name">[Nome do Responsável do Cliente]</p>
+                    <p>Responsável do Cliente</p>
+                </div>
+            </div>
+            <p style="margin-top: 40px; text-align: center;">Confirmo que o relatório acima é uma representação precisa dos achados da vistoria na data especificada.</p>
+        </footer>
+    </div>
+</body>
+</html>
