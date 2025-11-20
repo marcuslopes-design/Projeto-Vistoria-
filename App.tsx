@@ -35,26 +35,21 @@ const App: React.FC = () => {
       setLoading(true);
       const response = await fetch(`${API_URL}/app-data`);
       if (!response.ok) {
-        throw new Error('Falha ao buscar dados do servidor. Tentando modo offline.');
+        throw new Error(`Falha ao buscar dados do servidor (Status: ${response.status}).`);
       }
       const data: AppData = await response.json();
       setAppData(data);
       setOffline(false);
       setError(null);
     } catch (err: any) {
-      console.warn(err.message);
-      try {
-        const response = await fetch('/data.json');
-        if (!response.ok) {
-          throw new Error('Falha ao carregar dados locais.');
-        }
-        const data: AppData = await response.json();
-        setAppData(data);
-        setOffline(true);
-        setError('Modo offline: Apenas visualização.');
-      } catch (localErr: any) {
-         setError(localErr.message);
-      }
+      console.error("Falha ao conectar com o servidor:", err);
+      // Removed the fallback to data.json to ensure the SQL database is the single source of truth.
+      const errorMessage = (err.message || '').includes('Failed to fetch')
+        ? 'Não foi possível conectar ao servidor. Verifique se o backend está em execução e tente novamente.'
+        : `Erro ao buscar dados: ${err.message}`;
+      setError(errorMessage);
+      setOffline(true); // Set offline state to disable mutations
+      setAppData(null); // Ensure no stale data is shown
     } finally {
       setLoading(false);
     }
@@ -297,13 +292,16 @@ const App: React.FC = () => {
   const renderPage = () => {
     if (loading) return <div className="flex-1 flex items-center justify-center text-text-light dark:text-text-dark">Carregando...</div>;
     if (error && !appData) {
-      // Show a more helpful error message when running from file://
-      if (window.location.protocol === 'file:') {
+      // Show a more helpful error message when running from file:// or when backend is down
+      const isFileProtocol = window.location.protocol === 'file:';
+      const isConnectionError = error.includes('Não foi possível conectar');
+
+      if (isFileProtocol || isConnectionError) {
         return (
           <div className="flex-1 flex items-center justify-center p-4">
             <div className="bg-danger/10 border border-danger/20 text-danger-dark dark:text-danger rounded-xl p-6 max-w-lg text-center shadow-lg">
-              <h2 className="font-bold text-xl mb-2">Erro de Acesso Direto</h2>
-              <p className="text-sm">Este aplicativo precisa ser executado por um servidor para funcionar corretamente.</p>
+              <h2 className="font-bold text-xl mb-2">{isFileProtocol ? 'Erro de Acesso Direto' : 'Erro de Conexão'}</h2>
+              <p className="text-sm">{error}</p>
               <div className="text-left mt-4 bg-black/20 p-4 rounded-lg text-sm">
                 <p className="font-semibold">Para iniciar o aplicativo:</p>
                 <ol className="list-decimal list-inside mt-2 space-y-1">

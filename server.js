@@ -1,11 +1,11 @@
 
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs/promises');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -37,6 +37,68 @@ const dbAll = (query, params = []) => new Promise((resolve, reject) => {
 
 
 // --- Database Initialization and Seeding ---
+const seedData = {
+  "client": {
+    "name": "Nome do Cliente LLC",
+    "address": "Rua Principal, 123, Qualquer Cidade, BR 12345",
+    "contactPerson": "Joana Silva",
+    "phone": "(11) 98765-4321",
+    "email": "contato@cliente.com",
+    "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuDC-pPnhOFSyslYWgAenCLYEWTRCoz1wPWZEddyFzjHxWK5tz_GBCrzk9IKaH-4Cdq66sJqqnM0hvAL51wwU1Q3fsERZTeFX6joeM7tJj_uG2t0Rpim066Q6RRCHjPfTFfLyR_IZ1x9v-Ha3avuyuHcut4jER6VUsLWcY9RSStmctVfmrQ-OT5uxOJv_jSMLkm0XO3vP-KpAbRGuUsoyDbkP6bL_Fh3QZQg-2e-fDeaQiDShsL_MrxCxYSu-jIARrcCnwxrSsmpY4c",
+    "floorPlanUrl": null,
+    "coverImageUrl": null
+  },
+  "stats": [
+    { "icon": "verified", "label": "Pontuação de Conformidade", "value": "98%", "variant": "success" },
+    { "icon": "error", "label": "Falha de Equipamento", "value": 0, "variant": "critical" },
+    { "icon": "notification_important", "label": "Próximas Validades", "value": 5, "variant": "warning" }
+  ],
+  "inspection": { "date": "26 de Outubro de 2024", "time": "10:00" },
+  "equipmentData": [
+    { "name": "Extintores de Incêndio", "icon": "fire_extinguisher", "items": [
+        { "id": "FE-BLD1-FL2-004", "location": "Prédio 1, Andar 2, Ala Leste", "lastInspected": "2023-10-25", "status": "ok" },
+        { "id": "FE-BLD1-FL2-005", "location": "Prédio 1, Andar 2, Ala Oeste", "lastInspected": "2023-09-11", "status": "fail" },
+        { "id": "FE-BLD1-FL1-001", "location": "Prédio 1, Andar 1, Lobby", "lastInspected": "2023-10-02", "status": "maintenance" }
+    ]},
+    { "name": "Alarmes de Fumaça", "icon": "smoke_free", "items": [
+        { "id": "SA-BLD1-FL2-015", "location": "Prédio 1, Andar 2, Corredor C", "lastInspected": "2023-10-25", "status": "ok" }
+    ]},
+    { "name": "Hidrantes de Incêndio", "icon": "fire_hydrant", "items": [
+        { "id": "FH-EXT-PKG-001", "location": "Exterior, Estacionamento Norte", "lastInspected": "2023-10-18", "status": "ok" }
+    ]}
+  ],
+  "checklistEquipment": { "id": "EXT-053", "name": "Extintor ABC 10lb", "building": "Escritório Principal", "floor": "2", "room": "Sala de Conferência B", "lastInspected": "2023-10-15", "lastInspector": "J. Doe", "lastStatus": "OK" },
+  "checklistData": [
+    { "id": "check1", "label": "O manômetro de pressão está na zona verde?", "checked": false },
+    { "id": "check2", "label": "O pino e o lacre estão intactos?", "checked": false },
+    { "id": "check3", "label": "Sem danos físicos óbvios, corrosão ou vazamentos?", "checked": false },
+    { "id": "check4", "label": "O bico está livre de obstruções?", "checked": false },
+    { "id": "check5", "label": "Está montado corretamente e acessível?", "checked": false },
+    { "id": "check6", "label": "A etiqueta de inspeção está atualizada?", "checked": false },
+    { "id": "check7", "label": "O registro de manutenção está em dia?", "checked": false },
+    { "id": "check8", "label": "A data do teste hidrostático é válida?", "checked": false }
+  ],
+  "reportClient": { "name": "Sede Wayne Enterprises", "address": "Avenida das Indústrias, 1007, Gotham City", "inspectionDate": "26 de Out de 2023", "reportId": "#GTM-2023-1026", "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuD_U6yYoSwLKP8_WqO7DbYWXiH6Ya_wg96CSBmo25qA6_tTfxZrVI1-kOYoRiArYkTlm7jvHuLYjn3pMWSC-vqn5vBjhWK3V6XHqvhXczez32JNywDqSe3n1-9ceafcYtb5RHONOp9AYaccIlnw4hvfpQmf7yR1X37bw91tjyZXa40EyxpBCsPtSAY_fRzMsg4thi74LPsWM5Mdxjh9JFm4--SAmiNJLgmZ6-KM4emGVsa5FZyiH0TM0TQWQQ3Ah_cXwFSkDb157OI" },
+  "userProfile": { "name": "João da Silva", "technicianId": "FI-12345", "company": "FireSafe Inc.", "avatarUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuDC9niU-TSiMRBfBf50rMQYVLXD9928-DL_YCS1BGesRf-rwkgjlJBobTHQuUbJuUL56MXjRREu21uMpZZAz-8_NLpmXPZ1H6dVZDfnUTZhpY0e4KeMz7q1RL1fOne01nNjuAYzMMH1B4xlItBujefbl2IdVy3d63j8JXYBIiHPMP__y9rkHYdt97UYckfFQGlKgl53KUeFv4pvHeDEYADMmgnp80bvR1rtKAGA92S6vfQxICNIA70YXyGAMJfxvhCNc118aA7kcaE" },
+  "settings": [
+    { "title": "Conta", "items": [
+        { "id": "edit-profile", "type": "link", "icon": "person", "label": "Editar Perfil", "href": "#" },
+        { "id": "change-password", "type": "link", "icon": "lock", "label": "Alterar Senha", "href": "#" }
+    ]},
+    { "title": "Aplicativo", "items": [
+        { "id": "dark-mode", "type": "toggle", "icon": "dark_mode", "label": "Modo Escuro" },
+        { "id": "notifications", "type": "link", "icon": "notifications", "label": "Notificações", "href": "#" },
+        { "id": "clear-cache", "type": "link", "icon": "cleaning_services", "label": "Limpar Cache", "href": "#" }
+    ]},
+    { "title": "Suporte e Legal", "items": [
+        { "id": "help-center", "type": "link", "icon": "", "label": "Central de Ajuda", "href": "#" },
+        { "id": "privacy-policy", "type": "link", "icon": "", "label": "Política de Privacidade", "href": "#" },
+        { "id": "terms-of-service", "type": "link", "icon": "", "label": "Termos de Serviço", "href": "#" }
+    ]}
+  ],
+  "inspectionHistory": []
+};
+
 const initializeDatabase = async () => {
     console.log('Initializing database schema...');
     try {
@@ -65,8 +127,7 @@ const initializeDatabase = async () => {
             return;
         }
 
-        console.log('Database is empty. Seeding data from data.json...');
-        const seedData = JSON.parse(await fs.readFile('./data.json', 'utf-8'));
+        console.log('Database is empty. Seeding data...');
         
         const c = seedData.client;
         await dbRun(`INSERT INTO client (name, address, contactPerson, phone, email, imageUrl, floorPlanUrl, coverImageUrl)
@@ -114,11 +175,11 @@ const checkDbReady = (req, res, next) => {
 // --- Middleware ---
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
-app.use(express.static(__dirname));
 app.use((req, res, next) => {
-    const extension = path.extname(req.path);
-    if (req.path === '/healthz' || (extension && extension !== '.html')) return next();
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    // Simple logger for API calls
+    if (req.path.startsWith('/api/')) {
+        console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    }
     next();
 });
 
@@ -138,7 +199,7 @@ app.get('/api/image-proxy', async (req, res) => {
     }
 });
 
-// Apply DB check to all API routes
+// Apply DB readiness check to all API routes
 app.use('/api', checkDbReady);
 
 // --- Helper to assemble full app data state ---
@@ -172,6 +233,7 @@ const getAppDataFromDb = async () => {
 };
 
 // --- API ROUTES ---
+// This is the canonical order for Express: API routes first.
 app.get('/api/app-data', async (req, res) => {
     try {
         const data = await getAppDataFromDb();
@@ -312,13 +374,17 @@ app.post('/api/inspections', async (req, res) => {
     }
 });
 
-// --- SPA Fallback ---
+
+// --- Static Files & SPA Fallback ---
+// Serve static files from the root directory.
+app.use(express.static(path.join(__dirname)));
+
+// The SPA fallback handler. This MUST be the last route.
+// It sends index.html for any GET request that hasn't been handled by the API or static file middleware.
 app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ message: 'API route not found.' });
-    }
     res.sendFile(path.join(__dirname, 'index.html'));
 });
+
 
 // --- Server Startup ---
 db = new sqlite3.Database(DB_PATH, async (err) => {
